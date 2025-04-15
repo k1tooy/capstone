@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 brisque-opencv = "^0.0.17"
+scikit-learn = "^1.6.1"
 
 
 [build-system]
