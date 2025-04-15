@@ -1,14 +1,20 @@
-import Rpi.GPIO as GPIO
-import time
+from gpiozero import LED
+from time import sleep
+import random
+
+# Mapping class labels to GPIO pins, excluding "empty"
+signal_pins = {"abnoy": 17, "fertilized": 27, "unfertilized": 22}
+
+# Prepare LED objects
+signals = {label: LED(pin) for label, pin in signal_pins.items()}
 
 
-def sendSignal(pin: int):
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, GPIO.HIGH)
-    time.sleep(0.5)
-    GPIO.output(pin, GPIO.LOW)
-    GPIO.cleanup()
+def sendSignal(label: str):
+    led = signals.get(label)
+    if led:
+        led.on()
+        sleep(0.5)
+        led.off()
 
 
 def getImage():
@@ -16,8 +22,6 @@ def getImage():
 
 
 def identifyEgg():
-    import random
-
     return random.choice(["abnoy", "empty", "fertilized", "unfertilized"])
 
 
@@ -27,10 +31,11 @@ def main():
     while True:
         label = identifyEgg()
         print(f"Identified: {label}")
-        if label in signal_pins:
-            sendSignal(signal_pins[label])
-        time.sleep(1)
+        if label != "empty":
+            sendSignal(label)
+        sleep(1)
 
 
 if __name__ == "__main__":
     main()
+
