@@ -9,6 +9,7 @@ def capture_image(output_dir="data", subfolder="default_subfolder"):
     os.makedirs(full_path, exist_ok=True)
 
     picam2 = Picamera2()
+    picam2.start_preview(Preview.QT)
     picam2.start()
     print("Press Enter to capture an image. Press Ctrl+C to exit.")
 
