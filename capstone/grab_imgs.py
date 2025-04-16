@@ -1,6 +1,7 @@
 import os
 import time
 from picamera2 import Picamera2
+from picamera2.previews.qt import Preview
 
 
 def capture_image(output_dir="data", subfolder="default_subfolder"):
