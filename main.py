@@ -24,8 +24,7 @@ def sendSignal(label: str):
         led.off()
 
 
-def captureImage(output_dir="captured", subfolder="default"):
-    path = os.path.join(output_dir, subfolder)
+def captureImage(path="captured"):
     os.makedirs(path, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     file_path = os.path.join(path, f"image_{timestamp}.jpg")
@@ -34,18 +33,22 @@ def captureImage(output_dir="captured", subfolder="default"):
     return file_path
 
 
-def moveImagePath(subfolder: str, output_dir="data"):
+def moveImagePath(subfolder: str, file_name: str, output_dir="data"):
     path = os.path.join(output_dir, subfolder)
     os.makedirs(path, exist_ok=True)
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    file_path = os.path.join(path, f"image-{subfolder}_{timestamp}.jpg")
+    file_path = os.path.join(path, f"{subfolder}_{file_name}.jpg")
     picam2.capture_file(file_path)
     print(f"Image captured to {file_path}")
-    return file_path
 
 
-def deleteImage():
-    pass
+def deleteImage(file_path):
+    try:
+        os.remove(file_path)
+        print(f"Deleted image: {file_path}")
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+    except Exception as e:
+        print(f"Error deleting file: {e}")
 
 
 def identifyEgg(image):
@@ -68,9 +71,9 @@ def main():
 
         if label != "empty":
             sendSignal(label)
-            moveImagePath(label)
+            moveImagePath(label, image_path)
         else:
-            deleteImage()
+            deleteImage(image_path)
 
         sleep(1)
 
