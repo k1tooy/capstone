@@ -24,7 +24,7 @@ def sendSignal(label: str):
         led.off()
 
 
-def captureImage(output_dir="data", subfolder="default"):
+def captureImage(output_dir="captured", subfolder="default"):
     path = os.path.join(output_dir, subfolder)
     os.makedirs(path, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -34,8 +34,14 @@ def captureImage(output_dir="data", subfolder="default"):
     return file_path
 
 
-def moveImage():
-    pass
+def moveImagePath(subfolder: str, output_dir="data"):
+    path = os.path.join(output_dir, subfolder)
+    os.makedirs(path, exist_ok=True)
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    file_path = os.path.join(path, f"image-{subfolder}_{timestamp}.jpg")
+    picam2.capture_file(file_path)
+    print(f"Image captured to {file_path}")
+    return file_path
 
 
 def deleteImage():
@@ -43,23 +49,29 @@ def deleteImage():
 
 
 def identifyEgg(image):
+    # ML goes here
+    # It must return a str value
     return random.choice(["abnoy", "empty", "fertilized", "unfertilized"])
 
+
 def isFinished():
+    pass
 
 
 def main():
     class_names = ["abnoy", "empty", "fertilized", "unfertilized"]
 
     while True:
-        image_path = captureImage(subfolder="run1")
+        image_path = captureImage()
         label = identifyEgg(image_path)
         print(f"Identified: {label}")
+
         if label != "empty":
             sendSignal(label)
-            moveImage()
+            moveImagePath(label)
         else:
             deleteImage()
+
         sleep(1)
 
 
