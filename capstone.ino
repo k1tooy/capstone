@@ -13,7 +13,7 @@ const int pin_abnoy = 9;
 // Servo pins
 const int servo_right_pin = 4;
 const int servo_left_pin = 5;
-const int piston_pin = 6;
+const int piston_pin = 3;
 
 // Timing
 unsigned long currentMillis;
