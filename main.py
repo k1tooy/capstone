@@ -4,6 +4,7 @@ import time
 from time import sleep
 import os
 from picamera2 import Picamera2
+from picamera2.previews.qt import Preview
 
 # Mapping class labels to GPIO pins, excluding "empty"
 signal_pins = {"abnoy": 17, "fertilized": 27, "unfertilized": 22}
@@ -12,7 +13,24 @@ signal_pins = {"abnoy": 17, "fertilized": 27, "unfertilized": 22}
 signals = {label: LED(pin) for label, pin in signal_pins.items()}
 
 
+def has_display():
+    # On headless systems, DISPLAY env variable is typically not set
+    return (
+        os.environ.get("DISPLAY") is not None
+        or os.environ.get("WAYLAND_DISPLAY") is not None
+    )
+
+
 picam2 = Picamera2()
+
+if has_display():
+    try:
+        picam2.start_preview(Preview.QT)
+    except Exception as e:
+        print(f"Preview failed to start: {e}")
+else:
+    print("No display detected. Skipping preview.")
+
 picam2.start()
 
 
@@ -57,10 +75,6 @@ def identifyEgg(image):
     return random.choice(["abnoy", "empty", "fertilized", "unfertilized"])
 
 
-def isFinished():
-    pass
-
-
 def main():
     class_names = ["abnoy", "empty", "fertilized", "unfertilized"]
 
@@ -70,12 +84,13 @@ def main():
         print(f"Identified: {label}")
 
         if label != "empty":
+            sleep(1)
             sendSignal(label)
             moveImagePath(label, image_path)
         else:
             deleteImage(image_path)
 
-        sleep(1)
+        sleep(3)
 
 
 if __name__ == "__main__":

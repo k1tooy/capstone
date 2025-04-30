@@ -4,7 +4,7 @@ from picamera2 import Picamera2
 from picamera2 import Preview
 
 
-def capture_image(subfolder: str, output_dir="data"):
+def capture_image(subfolder: str, output_dir="dataset"):
     # Create the full path for the subfolder within the output directory
     full_path = os.path.join(output_dir, subfolder)
     os.makedirs(full_path, exist_ok=True)
@@ -26,4 +26,4 @@ def capture_image(subfolder: str, output_dir="data"):
 
 
 if __name__ == "__main__":
-    capture_image("fertilized")
+    capture_image("balut")
