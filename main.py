@@ -1,13 +1,23 @@
-import random
 from gpiozero import LED
 import time
 from time import sleep
+
 import os
 from picamera2 import Picamera2
 from picamera2.previews.qt import Preview
 
+from tensorflow.keras.models import load_model
+import numpy as np
+import tensorflow as tf
+
 # Mapping class labels to GPIO pins, excluding "empty"
-signal_pins = {"abnoy": 17, "fertilized": 27, "unfertilized": 22}
+signal_pins = {"abnoy": 17, "balut": 27, "penoy": 22}
+
+loaded_model = load_model(os.path.join("models", "balut_classifier.h5"))
+
+batch_size = 32
+img_height = 180
+img_width = 180
 
 # Prepare LED objects
 signals = {label: LED(pin) for label, pin in signal_pins.items()}
@@ -38,6 +48,7 @@ def sendSignal(label: str):
     led = signals.get(label)
     if led:
         led.on()
+        print(f"Signal sent to {label} pin.")  # debugging purposes
         sleep(0.5)
         led.off()
 
@@ -69,15 +80,21 @@ def deleteImage(file_path):
         print(f"Error deleting file: {e}")
 
 
-def identifyEgg(image):
-    # ML goes here
-    # It must return a str value
-    return random.choice(["abnoy", "empty", "fertilized", "unfertilized"])
+def identifyEgg(image_path) -> str:
+    class_names = ["abnoy", "empty", "fertilized", "unfertilized"]
+
+    img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
+    img_array = tf.keras.utils.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0)  # Create a batch
+
+    # Make prediction
+    predictions = loaded_model.predict(img_array)
+    score = tf.nn.softmax(predictions[0])
+
+    return class_names[np.argmax(score)]
 
 
 def main():
-    class_names = ["abnoy", "empty", "fertilized", "unfertilized"]
-
     while True:
         image_path = captureImage()
         label = identifyEgg(image_path)
