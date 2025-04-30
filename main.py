@@ -81,7 +81,7 @@ def deleteImage(file_path):
 
 
 def identifyEgg(image_path) -> str:
-    class_names = ["abnoy", "empty", "fertilized", "unfertilized"]
+    class_names = ["balut", "bugok", "penoy"]
 
     img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
     img_array = tf.keras.utils.img_to_array(img)
@@ -96,7 +96,8 @@ def identifyEgg(image_path) -> str:
 
 def main():
     while True:
-        image_path = captureImage()
+        # image_path = captureImage()
+        image_path = "tests/balut_test_1.jpg"
         label = identifyEgg(image_path)
         print(f"Identified: {label}")
 
