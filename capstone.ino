@@ -19,14 +19,8 @@ const int piston_pin = 3;
 unsigned long currentMillis;
 unsigned long pushTimer = 0;
 
-// Handshake
-bool signalSent = false;
-unsigned long signalStartTime = 0;
-const int signalDuration = 100;  // milliseconds
-const int pinDone = 10;
-
 // States
-enum State { IDLE, BALUT, ABNOY, PENOY };
+enum State { IDLE, BALUT, BUGOK, PENOY };
 State currentState = IDLE;
 
 enum SubState { INIT, PUSH_START, PUSH_MID, PUSH_END };
@@ -45,7 +39,7 @@ void setup() {
   digitalWrite(pinDone, LOW);
 
   centerServo();
-  piston.write(28); // Initial piston position
+  piston.write(30); // Initial piston position
 }
 
 void loop() {
@@ -57,24 +51,20 @@ void loop() {
       currentState = BALUT;
       subState = INIT;
     } else if (digitalRead(pin_bugok) == HIGH) {
-      currentState = ABNOY;
+      currentState = BUGOK;
       subState = INIT;
     } else if (digitalRead(pin_penoy) == HIGH) {
       currentState = PENOY;
       subState = INIT;
     }
   }
-  if (signalSent && currentMillis - signalStartTime >= signalDuration) {
-    digitalWrite(pinDone, LOW);
-    signalSent = false;
-  }
 
   switch (currentState) {
     case BALUT:
       handleBalut();
       break;
-    case ABNOY:
-      handleAbnoy();
+    case BUGOK:
+      handleBugok();
       break;
     case PENOY:
       handlePenoy();
@@ -96,7 +86,7 @@ void handleBalut() {
 
     case PUSH_START:
       if (currentMillis - pushTimer >= 1000) {
-        piston.write(28);
+        piston.write(30);
         pushTimer = currentMillis;
         subState = PUSH_MID;
       }
@@ -112,18 +102,15 @@ void handleBalut() {
 
     case PUSH_END:
       if (currentMillis - pushTimer >= 100) {
-        piston.write(28);
+        piston.write(30);
         centerServo();
-        digitalWrite(pinDone, HIGH);
-        signalSent = true;
-        signalStartTime = currentMillis;
         currentState = IDLE;
       }
       break;
   }
 }
 
-void handleAbnoy() {
+void handleBugok() {
   switch (subState) {
     case INIT:
       centerServo();
@@ -133,7 +120,7 @@ void handleAbnoy() {
 
     case PUSH_START:
       if (currentMillis - pushTimer >= 1000) {
-        piston.write(28);
+        piston.write(30);
         pushTimer = currentMillis;
         subState = PUSH_MID;
       }
@@ -149,11 +136,8 @@ void handleAbnoy() {
 
     case PUSH_END:
       if (currentMillis - pushTimer >= 100) {
-        piston.write(28);
+        piston.write(30);
         centerServo();
-        digitalWrite(pinDone, HIGH);
-        signalSent = true;
-        signalStartTime = currentMillis;
         currentState = IDLE;
       }
       break;
@@ -170,7 +154,7 @@ void handlePenoy() {
 
     case PUSH_START:
       if (currentMillis - pushTimer >= 1000) {
-        piston.write(28);
+        piston.write(30);
         pushTimer = currentMillis;
         subState = PUSH_MID;
       }
@@ -186,11 +170,8 @@ void handlePenoy() {
 
     case PUSH_END:
       if (currentMillis - pushTimer >= 100) {
-        piston.write(28);
+        piston.write(30);
         centerServo();
-        digitalWrite(pinDone, HIGH);
-        signalSent = true;
-        signalStartTime = currentMillis;
         currentState = IDLE;
       }
       break;
