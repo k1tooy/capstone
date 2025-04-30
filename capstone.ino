@@ -5,10 +5,10 @@ Servo servo_left;
 Servo servo_right;
 Servo piston;
 
-// Input pins
-const int pin_penoy = 7;
-const int pin_balut = 8;
-const int pin_abnoy = 9;
+// Input pins yellow, orange, red
+const int pin_balut = 7;
+const int pin_bugok = 8;
+const int pin_penoy = 9;
 
 // Servo pins
 const int servo_right_pin = 4;
@@ -38,7 +38,7 @@ void setup() {
   piston.attach(piston_pin);
 
   pinMode(pin_balut, INPUT);
-  pinMode(pin_abnoy, INPUT);
+  pinMode(pin_bugok, INPUT);
   pinMode(pin_penoy, INPUT);
 
   pinMode(pinDone, OUTPUT);
@@ -56,7 +56,7 @@ void loop() {
     if (digitalRead(pin_balut) == HIGH) {
       currentState = BALUT;
       subState = INIT;
-    } else if (digitalRead(pin_abnoy) == HIGH) {
+    } else if (digitalRead(pin_bugok) == HIGH) {
       currentState = ABNOY;
       subState = INIT;
     } else if (digitalRead(pin_penoy) == HIGH) {
@@ -197,6 +197,9 @@ void handlePenoy() {
   }
 }
 
+void ledOn() {
+
+  }
 void turnLeft() {
   servo_left.write(90);
   servo_right.write(90);
@@ -211,4 +214,3 @@ void centerServo() {
   servo_left.write(25);
   servo_right.write(60);
 }
-

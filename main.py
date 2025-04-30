@@ -10,8 +10,8 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import tensorflow as tf
 
-# Mapping class labels to GPIO pins, excluding "empty"
-signal_pins = {"abnoy": 17, "balut": 27, "penoy": 22}
+# Mapping class labels to GPIO pins, excluding "empty" (yellow, orange, red)
+signal_pins = {"balut": 17, "bugok": 27, "penoy": 22}
 
 loaded_model = load_model(os.path.join("models", "balut_classifier.h5"))
 
