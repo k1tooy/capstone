@@ -96,8 +96,7 @@ def identifyEgg(image_path) -> str:
 
 def main():
     while True:
-        # image_path = captureImage()
-        image_path = "tests/balut_test_1.jpg"
+        image_path = captureImage()
         label = identifyEgg(image_path)
         print(f"Identified: {label}")
 
@@ -108,7 +107,7 @@ def main():
         else:
             deleteImage(image_path)
 
-        sleep(3)
+        sleep(5)
 
 
 if __name__ == "__main__":

@@ -26,4 +26,6 @@ def capture_image(subfolder: str, output_dir="dataset"):
 
 
 if __name__ == "__main__":
-    capture_image("balut")
+    # classification could be "balut", "bugok", "penoy"
+    classification = ""
+    capture_image(classification)
