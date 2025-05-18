@@ -3,8 +3,10 @@ import time
 from time import sleep
 
 import os
+import shutil
+
 from picamera2 import Picamera2
-from picamera2.previews.qt import Preview
+from picamera2 import Preview
 
 from tensorflow.keras.models import load_model
 import numpy as np
@@ -13,7 +15,7 @@ import tensorflow as tf
 # Mapping class labels to GPIO pins, excluding "empty" (yellow, orange, red)
 signal_pins = {"balut": 17, "bugok": 27, "penoy": 22}
 
-loaded_model = load_model(os.path.join("models", "balut_classifier.h5"))
+loaded_model = load_model(os.path.join("models", "balut_classifier4.h5"))
 
 batch_size = 32
 img_height = 180
@@ -41,6 +43,7 @@ if has_display():
 else:
     print("No display detected. Skipping preview.")
 
+
 picam2.start()
 
 
@@ -62,12 +65,18 @@ def captureImage(path="captured"):
     return file_path
 
 
-def moveImagePath(subfolder: str, file_name: str, output_dir="data"):
-    path = os.path.join(output_dir, subfolder)
-    os.makedirs(path, exist_ok=True)
-    file_path = os.path.join(path, f"{subfolder}_{file_name}.jpg")
-    picam2.capture_file(file_path)
-    print(f"Image captured to {file_path}")
+def moveImagePath(subfolder: str, source_path: str, output_dir="data"):
+    file_name = os.path.basename(source_path)
+    name_only, extension = os.path.splitext(file_name)
+
+    target_dir = os.path.join(output_dir, subfolder)
+    os.makedirs(target_dir, exist_ok=True)
+
+    new_file_name = f"{subfolder}_{name_only}{extension}"
+    destination_path = os.path.join(target_dir, new_file_name)
+
+    shutil.move(source_path, destination_path)
+    print(f"Image moved to {destination_path}")
 
 
 def deleteImage(file_path):
@@ -81,7 +90,7 @@ def deleteImage(file_path):
 
 
 def identifyEgg(image_path) -> str:
-    class_names = ["balut", "bugok", "penoy"]
+    class_names = ["balut", "bugok", "empty", "penoy"]
 
     img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
     img_array = tf.keras.utils.img_to_array(img)
@@ -96,7 +105,10 @@ def identifyEgg(image_path) -> str:
 
 def main():
     while True:
+        sleep(5)
         image_path = captureImage()
+        print(image_path)
+        # image_path = "tests/balut_test_1.jpg"
         label = identifyEgg(image_path)
         print(f"Identified: {label}")
 
@@ -106,8 +118,6 @@ def main():
             moveImagePath(label, image_path)
         else:
             deleteImage(image_path)
-
-        sleep(5)
 
 
 if __name__ == "__main__":
