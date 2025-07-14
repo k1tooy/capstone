@@ -33,20 +33,6 @@ def has_display():
     )
 
 
-picam2 = Picamera2()
-
-if has_display():
-    try:
-        picam2.start_preview(Preview.QT)
-    except Exception as e:
-        print(f"Preview failed to start: {e}")
-else:
-    print("No display detected. Skipping preview.")
-
-
-picam2.start()
-
-
 def sendSignal(label: str):
     led = signals.get(label)
     if led:
@@ -101,6 +87,19 @@ def identifyEgg(image_path) -> str:
     score = tf.nn.softmax(predictions[0])
 
     return class_names[np.argmax(score)]
+
+
+picam2 = Picamera2()
+
+if has_display():
+    try:
+        picam2.start_preview(Preview.QT)
+    except Exception as e:
+        print(f"Preview failed to start: {e}")
+else:
+    print("No display detected. Skipping preview.")
+
+picam2.start()
 
 
 def main():
