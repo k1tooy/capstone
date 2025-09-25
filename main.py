@@ -102,7 +102,6 @@ else:
     print("No display detected. Skipping preview.")
 
 
-
 def main():
     while True:
         sleep(5)
