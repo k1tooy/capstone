@@ -14,7 +14,6 @@ import tensorflow as tf
 
 # Mapping class labels to GPIO pins, excluding "empty" (yellow, orange, red)
 signal_pins = {"balut": 17, "bugok": 27, "penoy": 22}
-picam2.start()
 
 loaded_model = load_model(os.path.join("models", "balut_classifier4.h5"))
 
