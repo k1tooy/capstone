@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+#define PISTON_RETRACTED 25
+
 // Servo objects
 Servo servo_left;
 Servo servo_right;
@@ -10,10 +12,15 @@ const int pin_balut = 7;
 const int pin_bugok = 8;
 const int pin_penoy = 9;
 
+// RGB
+const int pin_blue = A0;
+const int pin_green = A1;
+const int pin_red = A2;
+
 // Servo pins
-const int servo_right_pin = 4;
-const int servo_left_pin = 5;
 const int piston_pin = 3;
+const int servo_left_pin = 4;
+const int servo_right_pin = 5;
 
 // Timing
 unsigned long currentMillis;
@@ -27,6 +34,11 @@ enum SubState { INIT, PUSH_START, PUSH_MID, PUSH_END };
 SubState subState = INIT;
 
 void setup() {
+
+  pinMode(0, OUTPUT);
+  pinMode(1, OUTPUT);
+  pinMode(2, OUTPUT);
+
   servo_right.attach(servo_right_pin);
   servo_left.attach(servo_left_pin);
   piston.attach(piston_pin);
@@ -35,11 +47,8 @@ void setup() {
   pinMode(pin_bugok, INPUT);
   pinMode(pin_penoy, INPUT);
 
-  pinMode(pinDone, OUTPUT);
-  digitalWrite(pinDone, LOW);
-
   centerServo();
-  piston.write(30); // Initial piston position
+  piston.write(PISTON_RETRACTED); // Initial piston position
 }
 
 void loop() {
@@ -48,6 +57,7 @@ void loop() {
   // Only change state if we're not in the middle of a sequence
   if (currentState == IDLE) {
     if (digitalRead(pin_balut) == HIGH) {
+      ledOff();
       currentState = BALUT;
       subState = INIT;
     } else if (digitalRead(pin_bugok) == HIGH) {
@@ -79,14 +89,15 @@ void loop() {
 void handleBalut() {
   switch (subState) {
     case INIT:
+      ledGreen();
       turnLeft();
       subState = PUSH_START;
       pushTimer = currentMillis;
       break;
 
     case PUSH_START:
-      if (currentMillis - pushTimer >= 1000) {
-        piston.write(30);
+      if (currentMillis - pushTimer >= 500) {
+        piston.write(PISTON_RETRACTED);
         pushTimer = currentMillis;
         subState = PUSH_MID;
       }
@@ -101,9 +112,10 @@ void handleBalut() {
       break;
 
     case PUSH_END:
-      if (currentMillis - pushTimer >= 100) {
-        piston.write(30);
+      if (currentMillis - pushTimer >= 1000) {
+        piston.write(PISTON_RETRACTED);
         centerServo();
+        ledOff();
         currentState = IDLE;
       }
       break;
@@ -113,14 +125,15 @@ void handleBalut() {
 void handleBugok() {
   switch (subState) {
     case INIT:
+      ledRed();
       centerServo();
       subState = PUSH_START;
       pushTimer = currentMillis;
       break;
 
     case PUSH_START:
-      if (currentMillis - pushTimer >= 1000) {
-        piston.write(30);
+      if (currentMillis - pushTimer >= 500) {
+        piston.write(PISTON_RETRACTED);
         pushTimer = currentMillis;
         subState = PUSH_MID;
       }
@@ -135,9 +148,10 @@ void handleBugok() {
       break;
 
     case PUSH_END:
-      if (currentMillis - pushTimer >= 100) {
-        piston.write(30);
+      if (currentMillis - pushTimer >= 1000) {
+        piston.write(PISTON_RETRACTED);
         centerServo();
+        ledOff();
         currentState = IDLE;
       }
       break;
@@ -147,14 +161,15 @@ void handleBugok() {
 void handlePenoy() {
   switch (subState) {
     case INIT:
+      ledBlue();
       turnRight();
       subState = PUSH_START;
       pushTimer = currentMillis;
       break;
 
     case PUSH_START:
-      if (currentMillis - pushTimer >= 1000) {
-        piston.write(30);
+      if (currentMillis - pushTimer >= 500) {
+        piston.write(PISTON_RETRACTED);
         pushTimer = currentMillis;
         subState = PUSH_MID;
       }
@@ -169,18 +184,40 @@ void handlePenoy() {
       break;
 
     case PUSH_END:
-      if (currentMillis - pushTimer >= 100) {
-        piston.write(30);
+      if (currentMillis - pushTimer >= 1000) {
+        piston.write(PISTON_RETRACTED);
         centerServo();
+        ledOff();
         currentState = IDLE;
       }
       break;
   }
 }
 
-void ledOn() {
+void ledOff() {
+  digitalWrite(pin_red, LOW);
+  digitalWrite(pin_green, LOW);
+  digitalWrite(pin_blue, LOW);
+}
 
-  }
+void ledRed() {
+  digitalWrite(pin_red, HIGH);
+  digitalWrite(pin_green, LOW);
+  digitalWrite(pin_blue, LOW);
+}
+
+void ledGreen() {
+  digitalWrite(pin_red, LOW);
+  digitalWrite(pin_green, HIGH);
+  digitalWrite(pin_blue, LOW);
+}
+
+void ledBlue() {
+  digitalWrite(pin_red, LOW);
+  digitalWrite(pin_green, LOW);
+  digitalWrite(pin_blue, HIGH);
+}
+
 void turnLeft() {
   servo_left.write(90);
   servo_right.write(90);
