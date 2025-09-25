@@ -14,10 +14,10 @@ import tensorflow as tf
 
 # Mapping class labels to GPIO pins, excluding "empty" (yellow, orange, red)
 signal_pins = {"balut": 17, "bugok": 27, "penoy": 22}
+picam2.start()
 
 loaded_model = load_model(os.path.join("models", "balut_classifier4.h5"))
 
-batch_size = 32
 img_height = 180
 img_width = 180
 
@@ -81,6 +81,7 @@ def identifyEgg(image_path) -> str:
     img = tf.keras.utils.load_img(image_path, target_size=(img_height, img_width))
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)  # Create a batch
+    # (180, 180, 3)
 
     # Make prediction
     predictions = loaded_model.predict(img_array)
@@ -90,6 +91,7 @@ def identifyEgg(image_path) -> str:
 
 
 picam2 = Picamera2()
+picam2.start()
 
 if has_display():
     try:
@@ -99,7 +101,6 @@ if has_display():
 else:
     print("No display detected. Skipping preview.")
 
-picam2.start()
 
 
 def main():
